@@ -1,0 +1,221 @@
+package com;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+import net.proteanit.sql.DbUtils;
+
+public class Product_list implements ActionListener {
+	JFrame f1;
+	JPanel p1, p2;
+	JLabel l1;
+	JTextField tf1;
+	JButton btn1, btn2;
+	JTable tb1;
+
+	Product_list() {
+		f1 = new JFrame("OrderUp-Products List");
+
+		p1 = new JPanel();
+		p1.setBounds(25, 10, 225, 50);
+		p1.setBackground(Color.DARK_GRAY);
+		p1.setLayout(null);
+		p1.setVisible(true);
+
+		l1 = new JLabel("Product List");
+		l1.setBounds(25, 0, 300, 50);
+		l1.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 30));
+		l1.setForeground(Color.WHITE);
+		l1.setLayout(null);
+		l1.setVisible(true);
+
+		tf1 = new JTextField("Enter Product ID");
+		tf1.setBounds(350, 15, 350, 40);
+		tf1.setFont(new Font("Calibri", Font.PLAIN, 20));
+		tf1.setVisible(true);
+
+		btn1 = new JButton("SEARCH");
+		btn1.setBounds(700, 15, 120, 40);
+		btn1.setFont(new Font("ARIAL NARROW", Font.BOLD, 25));
+		btn1.setBackground(Color.BLUE);
+		btn1.setForeground(Color.WHITE);
+		btn1.setLayout(null);
+		btn1.setVisible(true);
+		btn1.addActionListener(this);
+
+		btn2 = new JButton("All Products");
+		btn2.setBounds(975, 17, 150, 35);
+		btn2.setFont(new Font("Serif", Font.BOLD, 20));
+		Border line = new LineBorder(Color.BLACK);
+		Border margin = new EmptyBorder(5, 7, 5, 10);
+		Border compound = new CompoundBorder(line, margin);
+		btn2.setBorder(compound);
+		btn2.setBackground(Color.ORANGE);
+		btn2.setForeground(Color.BLACK);
+		btn2.setLayout(null);
+		btn2.setVisible(true);
+		btn2.addActionListener(this);
+
+		p2 = new JPanel();
+		p2.setBounds(18, 75, 1200, 510);
+		p2.setBackground(Color.RED);
+		p2.setLayout(null);
+		p2.setVisible(true);
+
+
+
+		JScrollPane jsp = new JScrollPane();
+		jsp.setBounds(0, 0, 1200, 510);
+		jsp.setVisible(true);
+		p2.add(jsp);
+
+		// create table here
+		tb1 = new JTable();
+		tb1.setBounds(0, 0, 1150, 500);
+		tb1.setBackground(Color.WHITE);
+		tb1.setFont(new Font("Cablibri", Font.PLAIN, 15));
+		DefaultTableModel model = new DefaultTableModel();
+		Object[] column = { "Product_ID", "Name", "Brand", "Available_Quantity", "Warranty", "Image" };
+		model.setColumnIdentifiers(column);
+		tb1.setModel(model);
+		tb1.setRowHeight(75);
+		jsp.setViewportView(tb1);
+
+		try {
+
+			// Registering the Driver
+			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+
+			// Getting the connection
+			String mysqlUrl = "jdbc:mysql://localhost:3306/test";
+			java.sql.Connection con1 = DriverManager.getConnection(mysqlUrl, "root", "root");
+
+			java.sql.PreparedStatement pstmt = con1
+					.prepareStatement("SELECT Product_ID, Name, Brand, Available_Quantity, Image FROM products ");
+
+			ResultSet rs1 = pstmt.executeQuery();
+
+			tb1.setModel(DbUtils.resultSetToTableModel(rs1));
+			tb1.getColumn("Image").setCellRenderer(new ImageRender());
+		}
+
+		catch (Exception ex) {
+			System.out.println(ex);
+		}
+
+		f1.add(p1);
+		p1.add(l1);
+		f1.add(tf1);
+		f1.add(btn1);
+		f1.add(btn2);
+		f1.add(p2);
+		p2.add(jsp);
+
+		f1.setLayout(null);
+		f1.setBounds(35, 155, 1250, 650);
+		f1.setVisible(true);
+		f1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	}
+
+	public void actionPerformed(ActionEvent ae) {
+
+		if (ae.getSource() == btn1) {
+			try {
+
+				// Registering the Driver
+				DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+
+				// Getting the connection
+				String mysqlUrl = "jdbc:mysql://localhost:3306/test";
+				java.sql.Connection con1 = DriverManager.getConnection(mysqlUrl, "root", "root");
+
+				PreparedStatement pstmt = con1.prepareStatement(
+						"SELECT Product_ID, Name, Brand, Available_Quantity, Image FROM products WHERE Product_ID=  "
+								+ tf1.getText()
+								+ " ");
+
+				ResultSet rs1 = pstmt.executeQuery();
+
+				tb1.setModel(DbUtils.resultSetToTableModel(rs1));
+				tb1.getColumn("Image").setCellRenderer(new ImageRender());
+
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(f1, "Please Enter Valid Product ID..");
+			}
+		}
+
+		else if (ae.getSource() == btn2) {
+
+			try {
+
+				// Registering the Driver
+				DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+
+				// Getting the connection
+				String mysqlUrl = "jdbc:mysql://localhost:3306/test";
+				java.sql.Connection con1 = DriverManager.getConnection(mysqlUrl, "root", "root");
+
+				PreparedStatement pstmt = con1
+						.prepareStatement("SELECT Product_ID, Name, Brand, Available_Quantity, Image FROM products ");
+
+				ResultSet rs1 = pstmt.executeQuery();
+
+				tb1.setModel(DbUtils.resultSetToTableModel(rs1));
+				tb1.getColumn("Image").setCellRenderer(new ImageRender());
+
+			} catch (Exception ex) {
+				System.out.println(ex);
+			}
+		}
+
+	}
+
+	public class ImageRender extends DefaultTableCellRenderer {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Component getTableCellRendererComponent(JTable tb1, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+			byte[] bytes = (byte[]) value;
+			ImageIcon imageIcon = new ImageIcon(
+					new ImageIcon(bytes).getImage().getScaledInstance(230, 100, Image.SCALE_DEFAULT));
+
+			setIcon(imageIcon);
+			return this;
+		}
+
+	}
+
+	public static void main(String[] args) {
+
+		new Product_list();
+	}
+
+}
