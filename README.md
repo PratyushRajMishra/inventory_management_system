@@ -1,4 +1,4 @@
-# Inventart_Management_System" 
+# Inventory_Management_System" 
 # OUTPUT
 # LOGIN PAGE
 ![Capturelogin](https://github.com/PratyushRajMishra/inventory_management_system/assets/106599412/9ce55e87-9b5f-4b3e-943a-634b1e1a56bf)
